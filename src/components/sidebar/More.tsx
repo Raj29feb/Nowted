@@ -19,10 +19,10 @@ export function More() {
         }
     }
     return <div className="flex flex-col gap-2">
-        <p className="px-5 text-white/60">More</p>
+        <p className="px-5 text-white/60 text-sm font-semibold">More</p>
         <div className="flex flex-col gap-1.5">
             {moreOptions.map((item: moreType) => <div key={item.id} className={`${item.label === folderName ? 'bg-white/5' : 'hover:bg-white/5'} cursor-pointer flex px-5 py-2.5 gap-3.5`} onClick={() => handleMore(item.type)}>
-                <img className="opacity-60" src={item.logo} alt={item.alt} width='20' height='20' />
+                <item.logo className="text-white/60" size={20} strokeWidth={2.5} />
                 <span className="text-base font-semibold text-white/60">{item.label}</span>
             </div>)}
         </div>

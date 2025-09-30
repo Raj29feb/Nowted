@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -6,6 +7,12 @@
   --background-tertiary:#333333;
   --primary-blue:#312EB5;
 }
+
+
+body {
+  font-family: "Source Sans 3", sans-serif;
+}
+
 .bg-background{
   background: var(--background);
 }

@@ -1,5 +1,5 @@
 import { formatDate } from "@/lib/date.helper";
-import NoteSkeleton from "@/skeletons/note.skeleton";
+import { NoteSkeleton } from "@/skeletons/note.skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
@@ -16,6 +16,7 @@ import type { Folder } from "@/interfaces/sidebar.interface";
 import { MoreEnum, MoreValue } from "@/lib/more.enums";
 import { config } from "@/config";
 import { useNavigate, useParams } from "react-router-dom";
+import { CalendarDays, FileText, Folder as FolderIcon } from "lucide-react";
 
 type option = { logo: string, text: string, id: number, alt: string }
 
@@ -116,13 +117,13 @@ export function OpenedSecton() {
     }
 
     if (isLoading) return <NoteSkeleton />
-    if (isError) return <p>{(error as Error).message}</p>
+    if (isError) return <p className="text-white">{(error as Error).message}</p>
 
     return (<div className="bg-background flex-grow min-w-2xl">
         {fileId ? data.deletedAt ? <div className="flex flex-col gap-2.5 h-screen justify-center items-center">
             <img src="/logos/restore.svg" alt="restore-logo" width='80' height='80' />
             <p className="font-semibold text-2xl text-white">Restore &quot;{data.title}&quot;</p>
-            <p className="text-center leading-6 w-5/7 text-base text-white/60">Don't want to lose this note? It's not too late! Just click the 'Restore' button and it will be added back to your list. It's that simple.</p>
+            <p className="text-center leading-6 w-2/5 text-base text-white/60">Don't want to lose this note? It's not too late! Just click the 'Restore' button and it will be added back to your list. It's that simple.</p>
             <Button variant='default' className="cursor-pointer rounded-md px-7 py-2 bg-primary-blue text-base text-white" onClick={handleRestore}>Restore</Button>
         </div> : < div className="p-12 flex flex-col gap-7">
             <div className="flex justify-between">
@@ -149,17 +150,17 @@ export function OpenedSecton() {
             </div>
             <div className="flex flex-col gap-3.5">
                 <div className="flex gap-5 items-center">
-                    <img src="/logos/calender.svg" alt="calender-logo" width='18' height='18' />
+                    <CalendarDays size={18} strokeWidth={2.5} className="text-white/60" />
                     <span className="text-sm font-semibold text-white/60 w-20">Date</span>
                     <span className="underline text-sm font-semibold text-white">{formatDate(data.createdAt) || '--'}</span>
                 </div>
                 <hr className="text-white/60" />
                 <div className="flex gap-5 items-center">
-                    <img src="/logos/folderEmpty.svg" alt="calender-logo" width='18' height='18' />
+                    <FolderIcon size={18} className="text-white/60" strokeWidth={2.5} />
                     <span className="text-sm font-semibold text-white/60 w-20">Folder</span>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button disabled={isMore} className="focus:ring-0 underline text-sm font-semibold text-white cursor-pointer" variant="link">{data.folder.name || '--'}</Button>
+                            <Button disabled={isMore} className="p-0 focus:ring-0 underline text-sm font-semibold text-white cursor-pointer" variant="link">{data.folder.name || '--'}</Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="text-white absolute border-0 h-60 w-60 bg-background-tertiary rounded-md overflow-y-scroll">
                             {folders && folders.map((item: Folder) => <DropdownMenuCheckboxItem
@@ -183,7 +184,7 @@ export function OpenedSecton() {
                 />
             </div>
         </div> : <div className="h-screen flex flex-col gap-2.5 items-center justify-center">
-            <img src='/logos/doc.svg' width='80' height='80' alt='doc-logo' />
+            <FileText size={80} className="text-white" />
             <p className="font-semibold text-2xl text-white text-center">Select a note to view</p>
             <p className="text-white/60 text-base text-center w-5/12">Choose a note from the list on the left to view its contents, or create a new note to add to your collection.</p>        </div>
         }

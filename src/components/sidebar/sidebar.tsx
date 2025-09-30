@@ -7,7 +7,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { config } from "@/config";
 import { useState } from "react";
-import { Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import {
     Command,
     CommandEmpty,
@@ -69,14 +69,14 @@ export function Sidebar() {
                 }}>{searchNote ? <X className="w-6 h-6" /> : <Search strokeWidth={3} className="h-5 w-5" />}</button>
             </div>
             <div className="px-5 flex gap-2">
-                {searchNote ? <Command className="rounded-sm text-white/60 font-semibold text-base">
+                {searchNote ? <Command className="rounded-sm text-white font-semibold text-base">
                     <CommandInput className="text-base" placeholder="Search note" onValueChange={(val) => setSearch(val)} />
                     <CommandList className="bg-background-tertiary rounded-sm absolute z-10 w-64">
                         <SearchDropdown search={debouncedSearch} handleSearch={handleSearch} />
                     </CommandList>
                 </Command> : <button className="p-2.5 flex gap-2 cursor-pointer w-full bg-white/3 justify-center rounded-sm items-center" onClick={handleNewNote}>
-                    <img src="/logos/plus.svg" width='20' height='20' />
-                    <span className="text-center text-base font-semibold text-white">New Note</span>{/*font family needs to be fixed*/}
+                    <Plus size={20} strokeWidth={2.5} className="text-white" />
+                    <span className="text-center text-base font-semibold text-white">New Note</span>
                 </button>}
             </div>
             <Recent />
@@ -105,7 +105,7 @@ function SearchDropdown({ search, handleSearch }: { search: string, handleSearch
         </CommandGroup>
     }
     if (isError) {
-        return <p>{(error as Error).message}</p>
+        return <p className="text-white">{(error as Error).message}</p>
     }
     return <>
         <CommandEmpty>No results found.</CommandEmpty>

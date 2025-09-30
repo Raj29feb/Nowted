@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function FoldersSkeleton({ count = 5 }: { count?: number }) {
+export function FoldersSkeleton({ count = 5 }: { count?: number }) {
     return (
         <div className="max-h-44 overflow-scroll flex flex-col gap-1.5">
             {Array.from({ length: count }).map((_, idx) => (
