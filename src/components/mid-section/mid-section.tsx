@@ -107,6 +107,9 @@ export function MidSection() {
 
     useEffect(() => {
         setPage(1);
+        if (folderName !== MoreEnum.Trash) {
+            setTrashNotes(true);
+        }
     }, [folderId])
 
     if (isError) return <p className="text-white">{(error as Error).message}</p>
