@@ -8,6 +8,7 @@ import { Folder as FolderIcon, FolderOpen, FolderPlus, Trash, X } from 'lucide-r
 import { MoreEnum } from "@/lib/more.enums";
 import { config } from "@/config";
 import { useNavigate, useParams } from "react-router-dom";
+import { Input } from "../ui/input";
 
 function checkFolderPresence(folderId: string, folders: Folder[]) {
     return folders.find(folder => folder.id === folderId);
@@ -20,6 +21,7 @@ export function Folders() {
     const [newFolderName, setNewFolderName] = useState('My New Folder');
     const queryClient = useQueryClient();
     const [createFolder, setCreateFolder] = useState(false);
+
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['folders'],
         queryFn: async () => {
@@ -33,6 +35,7 @@ export function Folders() {
             return res.data.folders;
         }
     })
+
     const createMutation = useMutation({
         mutationFn: async (data: { name: string }) => {
             const res = await axios.post(`${config.base_url}/folders`, data);
@@ -46,34 +49,40 @@ export function Folders() {
             toast.error(error.message);
         },
     });
+
     const deleteMutation = useMutation({
         mutationFn: async (id: string) => {
             const res = await axios.delete(`${config.base_url}/folders/${id}`);
             return res.data;
         },
-        onSuccess: (data: string) => {
-            queryClient.invalidateQueries({ queryKey: ["folders"] });
+        onSuccess: async (data: string) => {
+            await queryClient.invalidateQueries({ queryKey: ["folders"] });
+            navigate('/All Notes');
             toast.success(data);
         },
         onError: (error) => {
             toast.error(error.message);
         },
     })
+
     if (isError) return <p className="text-white">Error: {(error as Error).message}</p>;
     const handleFolder = (id: string, name: string) => {
         navigate(`/${name}/${id}`);
     }
+
     const handleFolderCreation = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!newFolderName) return;
         createMutation.mutate({ name: newFolderName });
         setCreateFolder(false)
     }
+
     const handleFolderDelete = (id: string) => {
         if (!id) return;
         if (confirm('Are you sure you want to delete this folder?'))
             deleteMutation.mutate(id);
     }
+
     return <div className="flex flex-col gap-2">
         <div className="px-5 flex justify-between">
             <span className="text-sm font-semibold text-white/60">Folders</span>
@@ -82,7 +91,7 @@ export function Folders() {
         <div className={`px-5 flex items-center gap-3 ${createFolder ? 'block' : 'hidden'}`}>
             <FolderIcon className="w-5 h-5 text-white/60" />
             <form onSubmit={handleFolderCreation}>
-                <input type="text" value={newFolderName} className='text-white p-1 w-2/3' onChange={(e) => setNewFolderName(e.target.value)} />
+                <Input type="text" value={newFolderName} style={{ fontSize: 'medium' }} className='text-white p-1 w-2/3' onChange={(e) => setNewFolderName(e.target.value)} />
             </form>
         </div>
         {isLoading ? <FoldersSkeleton /> : <div className="max-h-44 overflow-y-scroll">

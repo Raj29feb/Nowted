@@ -17,17 +17,19 @@ import { MoreEnum, MoreValue } from "@/lib/more.enums";
 import { config } from "@/config";
 import { useNavigate, useParams } from "react-router-dom";
 import { CalendarDays, FileText, Folder as FolderIcon } from "lucide-react";
+import { Input } from "./ui/input";
 
 type option = { logo: string, text: string, id: number, alt: string }
 
 export function OpenedSecton() {
-    const { folderName: folname, fileName, fileId } = useParams();
+    const { folderName: folname, fileId } = useParams();
     const isMore = (folname === MoreEnum.Favorites || folname === MoreEnum.Archived || folname === MoreEnum.Trash);
     const [noteName, setNoteName] = useState('');
     const [noteContent, setNoteContent] = useState('');
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const folders = queryClient.getQueryData(["folders"]) as Folder[];
+
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['note', fileId],
         queryFn: async () => {
@@ -38,6 +40,7 @@ export function OpenedSecton() {
         },
         enabled: !!fileId
     })
+
     const mutation = useMutation({
         mutationFn: async (data: { title?: string, content?: string, folderId?: string, isFavorite?: boolean, isArchived?: boolean }) => {
             const res = await axios.patch(`${config.base_url}/notes/${fileId}`, data);
@@ -53,6 +56,7 @@ export function OpenedSecton() {
             toast.error(error.message);
         },
     });
+
     const deleteMutation = useMutation({
         mutationFn: async () => {
             const res = await axios.delete(`${config.base_url}/notes/${fileId}`);
@@ -67,32 +71,36 @@ export function OpenedSecton() {
             toast.error(error.message);
         },
     });
+
     const restoreMutation = useMutation({
         mutationFn: async () => {
-            const res = await axios.post(`${config.base_url}/notes/${fileId}/restore`, data);
+            const res = await axios.post(`${config.base_url}/notes/${fileId}/restore`);
             return res.data;
         },
-        onSuccess: (data: string) => {
-            queryClient.invalidateQueries({ queryKey: ["note", fileId] });
-            queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
-            queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
-            queryClient.invalidateQueries({ queryKey: ["folders"] })
+        onSuccess: async (data: string) => {
+            await queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
+            await queryClient.invalidateQueries({ queryKey: ["folders"] });
             toast.success(data);
+            navigate('/All Notes');
         },
         onError: (error) => {
             toast.error(error.message);
         },
     });
+
     const handleNoteNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         mutation.mutate({ title: e.target.value });
     };
+
     const handleNoteContentBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
         mutation.mutate({ content: e.target.value });
     };
+
     const handleFolderChange = (folderId: string, folderName: string) => {
         mutation.mutate({ folderId });
-        navigate(`/${folderName}/${folderId}/${fileName}/${fileId}`);
+        navigate(`/${folderName}/${folderId}/${fileId}`);
     }
+
     const handleOptions = (type: MoreEnum) => {
         switch (type) {
             case MoreEnum.Favorites:
@@ -106,6 +114,7 @@ export function OpenedSecton() {
                 break;
         }
     }
+
     const options: option[] = [
         { id: 0, logo: data && data.isFavorite ? '/logos/star-filled.svg' : '/logos/favorite.svg', text: data && data.isFavorite ? 'Remove from favorites' : 'Add to favorites', alt: 'favorite' },
         { id: 1, logo: data && data.isArchived ? '/logos/archived-filled.svg' : '/logos/archive.svg', text: data && data.isArchived ? 'Remove from Archived' : 'Archive', alt: 'archive' },
@@ -117,6 +126,7 @@ export function OpenedSecton() {
     }
 
     if (isLoading) return <NoteSkeleton />
+
     if (isError) return <p className="text-white">{(error as Error).message}</p>
 
     return (<div className="bg-background flex-grow min-w-2xl">
@@ -127,14 +137,14 @@ export function OpenedSecton() {
             <Button variant='default' className="cursor-pointer rounded-md px-7 py-2 bg-primary-blue text-base text-white" onClick={handleRestore}>Restore</Button>
         </div> : < div className="p-12 flex flex-col gap-7">
             <div className="flex justify-between">
-                <input type="text" id='name' name="name" className="outline-0 font-semibold text-3xl text-white" onBlur={handleNoteNameBlur} value={noteName} onChange={(e) => setNoteName(e.target.value)} />
+                <Input type="text" id='name' name="name" style={{ fontSize: '30px' }} className="w-1/3 p-0 border-none font-semibold text-white" onBlur={handleNoteNameBlur} value={noteName} onChange={(e) => setNoteName(e.target.value)} />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button className="focus:ring-0 underline text-sm font-semibold text-white cursor-pointer" variant="link">
                             <img src="/logos/dots.svg" alt="dots-logo" width='30' height='30' />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" side="left" className="text-white p-3.5 -left-48 flex flex-col gap-5 top-3 absolute border-0 h-40 bg-background-tertiary rounded-md overflow-y-scroll">
+                    <DropdownMenuContent align="end" side="left" className="text-white p-3.5 -left-48 flex flex-col gap-5 top-3 absolute border-0 h-40 bg-tertiary rounded-md overflow-y-scroll">
                         {options.map((option: option) => <DropdownMenuCheckboxItem
                             key={option.id}
                             className="text-base flex flex-col items-start cursor-pointer p-0"
@@ -162,7 +172,7 @@ export function OpenedSecton() {
                         <DropdownMenuTrigger asChild>
                             <Button disabled={isMore} className="p-0 focus:ring-0 underline text-sm font-semibold text-white cursor-pointer" variant="link">{data.folder.name || '--'}</Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="text-white absolute border-0 h-60 w-60 bg-background-tertiary rounded-md overflow-y-scroll">
+                        <DropdownMenuContent className="text-white -left-7 absolute border-0 h-60 w-60 bg-tertiary rounded-md overflow-y-scroll">
                             {folders && folders.map((item: Folder) => <DropdownMenuCheckboxItem
                                 key={item.id}
                                 checked={item.id === data.folder.id}

@@ -2,7 +2,7 @@ export const MoreEnum = {
   Favorites: "Favorites",
   Trash: "Trash",
   Archived: "Archived Notes",
-} as const;
+};
 
 export type MoreEnum = (typeof MoreEnum)[keyof typeof MoreEnum];
 

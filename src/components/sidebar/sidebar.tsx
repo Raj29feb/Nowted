@@ -20,6 +20,7 @@ import type { Note } from "@/interfaces/sidebar.interface";
 import { useDebounce } from "@/custom-hook/debounce";
 import { Skeleton } from "../ui/skeleton";
 import { useNavigate, useParams } from "react-router-dom";
+import React from "react";
 
 
 export function Sidebar() {
@@ -43,7 +44,7 @@ export function Sidebar() {
             return res.data;
         },
         onSuccess: (data: { id: string }) => {
-            navigate(`/${folderName}/${folderId}/New Note/${data.id}`);
+            navigate(`/${folderName}/${folderId}/${data.id}`);
             queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
             queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
             toast.success('New post created successfully');
@@ -52,13 +53,16 @@ export function Sidebar() {
             toast.error(error.message);
         },
     });
+
     const handleNewNote = () => {
         if (!folderId) return;
         mutation.mutate();
     };
-    const handleSearch = (filId: string, filName: string, folId: string, folName: string) => {
-        navigate(`/${folName}/${folId}/${filName}/${filId}`);
+
+    const handleSearch = (filId: string, folId: string, folName: string) => {
+        navigate(`/${folName}/${folId}/${filId}`);
     }
+
     return (
         <div className="py-7 flex flex-col gap-7 bg-background min-w-2xs">
             <div className="px-5 flex justify-between">
@@ -71,7 +75,7 @@ export function Sidebar() {
             <div className="px-5 flex gap-2">
                 {searchNote ? <Command className="rounded-sm text-white font-semibold text-base">
                     <CommandInput className="text-base" placeholder="Search note" onValueChange={(val) => setSearch(val)} />
-                    <CommandList className="bg-background-tertiary rounded-sm absolute z-10 w-64">
+                    <CommandList className="bg-tertiary rounded-sm absolute z-10 w-64">
                         <SearchDropdown search={debouncedSearch} handleSearch={handleSearch} />
                     </CommandList>
                 </Command> : <button className="p-2.5 flex gap-2 cursor-pointer w-full bg-white/3 justify-center rounded-sm items-center" onClick={handleNewNote}>
@@ -85,7 +89,8 @@ export function Sidebar() {
         </div>
     )
 }
-function SearchDropdown({ search, handleSearch }: { search: string, handleSearch: (filId: string, filName: string, folId: string, folName: string) => void }) {
+
+const SearchDropdown = React.memo(function SearchDropdown({ search, handleSearch }: { search: string, handleSearch: (filId: string, folId: string, folName: string) => void }) {
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ["notes", search],
         queryFn: async () => {
@@ -110,7 +115,7 @@ function SearchDropdown({ search, handleSearch }: { search: string, handleSearch
     return <>
         <CommandEmpty>No results found.</CommandEmpty>
         {data && data.length > 0 && <CommandGroup>
-            {data.map((item: Note) => <CommandItem key={item.id} onSelect={() => handleSearch(item.id, item.title, item.folderId, item.folder.name)} className="cursor-pointer text-base hover:bg-[var(--primary-blue)]">{item.title}</CommandItem>)}
+            {data.map((item: Note) => <CommandItem key={item.id} onSelect={() => handleSearch(item.id, item.folderId, item.folder.name)} className="cursor-pointer text-base hover:bg-[var(--primary-blue)]">{item.title}</CommandItem>)}
         </CommandGroup>}
     </>
-}
+})

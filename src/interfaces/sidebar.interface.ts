@@ -18,3 +18,11 @@ export interface Note {
   preview: string;
   folder: Folder;
 }
+
+export interface Folder{
+  id:string,
+  name:string,
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}

@@ -2,19 +2,21 @@ import type { moreType } from "@/interfaces/more.interface";
 import { moreOptions } from "@/contants/more.constants";
 import { MoreEnum } from "@/lib/more.enums";
 import { useNavigate, useParams } from "react-router-dom";
+
 export function More() {
     const { folderName } = useParams();
     const navigate = useNavigate();
+
     function handleMore(type: MoreEnum) {
         switch (type) {
             case MoreEnum.Favorites:
-                navigate(`/${MoreEnum.Favorites}`);
+                navigate(`/${MoreEnum.Favorites}/${MoreEnum.Favorites}Id`);
                 break;
             case MoreEnum.Trash:
-                navigate(`/${MoreEnum.Trash}`);
+                navigate(`/${MoreEnum.Trash}/${MoreEnum.Trash}Id`);
                 break;
             case MoreEnum.Archived:
-                navigate(`/${MoreEnum.Archived}`);
+                navigate(`/${MoreEnum.Archived}/${MoreEnum.Archived}Id`);
                 break;
         }
     }

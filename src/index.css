@@ -8,22 +8,16 @@
   --primary-blue:#312EB5;
 }
 
+@theme inline{
+  --color-background: var(--background);
+  --color-secondary:var(--background-secondary);
+  --color-tertiary:var(--background-tertiary);
+  --color-primary-blue:var(--primary-blue);
+}
+
 
 body {
   font-family: "Source Sans 3", sans-serif;
-}
-
-.bg-background{
-  background: var(--background);
-}
-.bg-background-secondary{
-  background: var(--background-secondary);
-}
-.bg-background-tertiary{
-  background: var(--background-tertiary);
-}
-.bg-primary-blue{
-  background: var(--primary-blue);
 }
 
 ::-webkit-scrollbar {
