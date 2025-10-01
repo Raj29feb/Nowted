@@ -15,75 +15,36 @@ export function MidSection() {
     const [result, setResult] = useState<Note[]>([]);
     const [page, setPage] = useState(1);
     const isMore = (folderName === MoreEnum.Favorites || folderName === MoreEnum.Archived || folderName === MoreEnum.Trash);
-    async function selectedFolderQuery() {
+    async function selectedFolderQuery({ pg }: { pg: number } = { pg: 1 }) {
         let params = {};
-        setPage(1);
         switch (folderName) {
             case MoreEnum.Favorites:
                 params = {
-                    page: 1,
+                    page: pg,
                     favorite: true
                 };
                 break;
             case MoreEnum.Archived:
                 params = {
-                    page: 1,
+                    page: pg,
                     archived: true
                 };
                 break;
             case MoreEnum.Trash:
                 params = {
-                    page: 1,
+                    page: pg,
                     deleted: true
                 };
                 break;
             default:
                 if (folderId) {
                     params = {
-                        page: 1,
+                        page: pg,
                         folderId
                     };
                 } else {
                     params = {
-                        page: 1
-                    };
-                }
-        }
-        const res = await axios.get(`${config.base_url}/notes`, {
-            params: params
-        })
-        return res.data;
-    }
-    async function selectedNextFolderQuery() {
-        let params = {};
-        switch (folderName) {
-            case MoreEnum.Favorites:
-                params = {
-                    page: page,
-                    favorite: true
-                };
-                break;
-            case MoreEnum.Archived:
-                params = {
-                    page: page,
-                    archived: true
-                };
-                break;
-            case MoreEnum.Trash:
-                params = {
-                    page: page,
-                    deleted: true
-                };
-                break;
-            default:
-                if (folderId) {
-                    params = {
-                        page: page,
-                        folderId
-                    };
-                } else {
-                    params = {
-                        page: page
+                        page: pg
                     };
                 }
         }
@@ -94,27 +55,30 @@ export function MidSection() {
     }
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['selectedFolder', folderId, folderName],
-        queryFn: selectedFolderQuery
+        queryFn: () => selectedFolderQuery(),
     })
-    const { data: nextData } = useQuery({
-        queryKey: [page],
-        queryFn: selectedNextFolderQuery,
+    const { data: nextData, isLoading: nextIsLoading } = useQuery({
+        queryKey: ['folderPage', page],
+        queryFn: () => selectedFolderQuery({ pg: page }),
         enabled: !!page && page !== 1
     })
     const handleFile = (folderId: string, fon: string, fileName: string, fileId: string) => {
 
         if (isMore)
-            navigate(`/${folderName}/${folderId}/${fileName}/${fileId}`);
+            navigate(`/${folderName}/${folderName}Id/${fileName}/${fileId}`);
         else
             navigate(`/${fon}/${folderId}/${fileName}/${fileId}`);
     }
     useEffect(() => {
-        if (data && nextData) {
-            setResult([...data.notes, ...nextData.notes]);
-        } else if (data) {
+        if (data) {
             setResult([...data.notes]);
         }
-    }, [data, nextData]);
+    }, [data])
+    useEffect(() => {
+        if (nextData) {
+            setResult((prev) => [...prev, ...nextData.notes]);
+        }
+    }, [nextData]);
     if (isError) return <p className="text-white">{(error as Error).message}</p>
     return (<div className="min-w-80 py-7 flex flex-col bg-background-secondary h-screen gap-7">
         {isLoading ? <NoteCardSkeleton /> : <><p className="rounded-sm px-5 text-2xl font-semibold text-white">{folderName ?? '--'}</p>
@@ -127,7 +91,7 @@ export function MidSection() {
                     </div>
                 </div>) : <p className="text-white/60 text-center">No notes available to view.</p>}
                 {result && result.length < data.total && <div className="flex justify-center">
-                    <Button className="bg-primary-blue w-28 text-white font-semibold text-base cursor-pointer" onClick={() => setPage(page + 1)}>Load More</Button>
+                    <Button className="bg-primary-blue w-28 text-white font-semibold text-base cursor-pointer" disabled={isLoading} onClick={() => setPage(page + 1)}>{nextIsLoading ? 'Loading...' : 'Load More'}</Button>
                 </div>}
             </div>
         </>
