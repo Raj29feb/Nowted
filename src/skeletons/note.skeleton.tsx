@@ -8,7 +8,7 @@ function RowSkeleton() {
     </div>
 }
 
-export default function NoteSkeleton() {
+export function NoteSkeleton() {
     return (
         <div className="bg-background w-full p-12 flex flex-col gap-7">
             <div className="flex justify-between items-center">

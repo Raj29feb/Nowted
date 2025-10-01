@@ -4,11 +4,7 @@ import { NotFound } from "./components/not-found";
 
 export const router = createBrowserRouter([
     {
-        path: "/",
-        element: <App />,
-        children: [
-            { path: "/:folderName?/:folderId?/:fileName?/:fileId?", element: <App /> },
-            { path: "*", element: <NotFound /> }
-        ],
-    },
+        path: "/:folderName?/:folderId?/:fileId?",
+        element: <App />
+    }, { path: "*", element: <NotFound /> }
 ]);

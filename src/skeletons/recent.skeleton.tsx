@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function RecentsSkeleton({ count = 3 }: { count?: number }) {
+export function RecentsSkeleton({ count = 3 }: { count?: number }) {
     return (
         <div className="flex flex-col gap-1">
             {Array.from({ length: count }).map((_, idx) => (
