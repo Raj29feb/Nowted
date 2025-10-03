@@ -78,6 +78,7 @@ export function OpenedSecton() {
 
     const restoreMutation = useMutation({
         mutationFn: async ({ foldName, foldId }: { foldName: string; foldId: string }) => {
+            console.log(foldName, foldId);
             const res = await axios.post(`${config.base_url}/notes/${fileId}/restore`);
             return res.data;
         },
