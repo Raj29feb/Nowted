@@ -2,7 +2,7 @@ import { formatDate } from "@/lib/date.helper";
 import { NoteSkeleton } from "@/skeletons/note.skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +18,7 @@ import { config } from "@/config";
 import { useNavigate, useParams } from "react-router-dom";
 import { CalendarDays, FileText, Folder as FolderIcon } from "lucide-react";
 import { Input } from "./ui/input";
+import { PageContext } from "@/context";
 
 type option = { logo: string, text: string, id: number, alt: string }
 
@@ -29,6 +30,7 @@ export function OpenedSecton() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const folders = queryClient.getQueryData(["folders"]) as Folder[];
+    const { setPage } = useContext(PageContext);
 
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['note', fileId],
@@ -46,10 +48,11 @@ export function OpenedSecton() {
             const res = await axios.patch(`${config.base_url}/notes/${fileId}`, data);
             return res.data;
         },
-        onSuccess: (data: string) => {
-            queryClient.invalidateQueries({ queryKey: ["note", fileId] });
-            queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
-            queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
+        onSuccess: async (data: string) => {
+            setPage(1);
+            await queryClient.invalidateQueries({ queryKey: ["note", fileId] });
+            await queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
+            await queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
             toast.success(data);
         },
         onError: (error) => {
@@ -62,8 +65,9 @@ export function OpenedSecton() {
             const res = await axios.delete(`${config.base_url}/notes/${fileId}`);
             return res.data;
         },
-        onSuccess: (data: string) => {
-            queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
+        onSuccess: async (data: string) => {
+            setPage(1);
+            await queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
             queryClient.invalidateQueries({ queryKey: ["note", fileId] });
             toast.success(data);
         },
@@ -73,15 +77,18 @@ export function OpenedSecton() {
     });
 
     const restoreMutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async ({ foldName, foldId }: { foldName: string; foldId: string }) => {
+            console.log(foldName, foldId);
             const res = await axios.post(`${config.base_url}/notes/${fileId}/restore`);
             return res.data;
         },
-        onSuccess: async (data: string) => {
+        onSuccess: async (data: string, { foldName, foldId }) => {
+            toast.success(data);
+            setPage(1);
             await queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
             await queryClient.invalidateQueries({ queryKey: ["folders"] });
-            toast.success(data);
-            navigate('/All Notes');
+            await queryClient.invalidateQueries({ queryKey: ["note"] });
+            navigate(`/${foldName}/${foldId}/${fileId}`);
         },
         onError: (error) => {
             toast.error(error.message);
@@ -121,8 +128,8 @@ export function OpenedSecton() {
         { id: 2, logo: '/logos/delete.svg', text: 'Delete', alt: 'delete' },
     ]
 
-    const handleRestore = () => {
-        restoreMutation.mutate();
+    const handleRestore = (foldName: string, foldId: string) => {
+        restoreMutation.mutate({ foldName, foldId });
     }
 
     if (isLoading) return <NoteSkeleton />
@@ -134,7 +141,7 @@ export function OpenedSecton() {
             <img src="/logos/restore.svg" alt="restore-logo" width='80' height='80' />
             <p className="font-semibold text-2xl text-white">Restore &quot;{data.title}&quot;</p>
             <p className="text-center leading-6 w-2/5 text-base text-white/60">Don't want to lose this note? It's not too late! Just click the 'Restore' button and it will be added back to your list. It's that simple.</p>
-            <Button variant='default' className="cursor-pointer rounded-md px-7 py-2 bg-primary-blue text-base text-white" onClick={handleRestore}>Restore</Button>
+            <Button variant='default' className="cursor-pointer rounded-md px-7 py-2 bg-primary-blue text-base text-white" onClick={() => handleRestore(data.folder.name, data.folder.id)}>Restore</Button>
         </div> : < div className="p-12 flex flex-col gap-7">
             <div className="flex justify-between">
                 <Input type="text" id='name' name="name" style={{ fontSize: '30px' }} className="w-1/3 p-0 border-none font-semibold text-white" onBlur={handleNoteNameBlur} value={noteName} onChange={(e) => setNoteName(e.target.value)} />
