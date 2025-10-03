@@ -48,10 +48,11 @@ export function OpenedSecton() {
             const res = await axios.patch(`${config.base_url}/notes/${fileId}`, data);
             return res.data;
         },
-        onSuccess: (data: string) => {
-            queryClient.invalidateQueries({ queryKey: ["note", fileId] });
-            queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
-            queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
+        onSuccess: async (data: string) => {
+            setPage(1);
+            await queryClient.invalidateQueries({ queryKey: ["note", fileId] });
+            await queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
+            await queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
             toast.success(data);
         },
         onError: (error) => {
@@ -64,8 +65,9 @@ export function OpenedSecton() {
             const res = await axios.delete(`${config.base_url}/notes/${fileId}`);
             return res.data;
         },
-        onSuccess: (data: string) => {
-            queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
+        onSuccess: async (data: string) => {
+            setPage(1);
+            await queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
             queryClient.invalidateQueries({ queryKey: ["note", fileId] });
             toast.success(data);
         },

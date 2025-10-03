@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { PageContext } from "@/context";
 
 export function MidSection() {
-    const { folderId, folderName } = useParams();
+    const { folderId, folderName, fileId } = useParams();
     const [trashNotes, setTrashNotes] = useState(true);
     const queryClient = useQueryClient();
     const navigate = useNavigate();
@@ -127,7 +127,7 @@ export function MidSection() {
             </div>
             {trashNotes ?
                 <div className="flex flex-col gap-5 px-5 max-h-6/7 overflow-y-auto">
-                    {result && result.length > 0 ? result.map((item: Note) => <div key={item.id} onClick={() => handleFile(item.folder.id, item.folder.name, item.id)} className="max-w-80 cursor-pointer rounded-sm flex flex-col bg-white/5 p-5 gap-2.5">
+                    {result && result.length > 0 ? result.map((item: Note) => <div key={item.id} onClick={() => handleFile(item.folder.id, item.folder.name, item.id)} className={`max-w-80 cursor-pointer rounded-sm flex flex-col ${item.id === fileId ? 'bg-white/10' : 'bg-white/3 hover:bg-white/10'} p-5 gap-2.5`}>
                         <p className="text-lg font-semibold text-white">{item.title}</p>
                         <div className="flex gap-2.5">
                             <p className="text-white/40 text-base">{formatDate(item.createdAt) || '--'}</p>
