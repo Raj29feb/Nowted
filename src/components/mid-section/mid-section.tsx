@@ -99,10 +99,10 @@ export function MidSection() {
     useEffect(() => {
         if(data){
             const prevPage = prevPageRef.current;
-            if (page === 1 && data) {
+            if (page === 1) {
                 setResult([...data.notes]);
             }
-            else if (data && page !== 1 && page !== prevPage) {
+            else if (page !== 1 && page !== prevPage) {
                 setResult([...result, ...data.notes]);
             }
             prevPageRef.current = page;
