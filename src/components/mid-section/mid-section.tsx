@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../ui/button";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FileText, FolderIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import { PageContext } from "@/context";
@@ -20,6 +20,7 @@ export function MidSection() {
     const { page, setPage } = useContext(PageContext);
     const isMore = (folderName === MoreEnum.Favorites || folderName === MoreEnum.Archived || folderName === MoreEnum.Trash);
     const [result, setResult] = useState<Note[]>([])
+    const prevPageRef = useRef(1);
 
     async function selectedFolderQuery() {
         let params = {};
@@ -61,7 +62,7 @@ export function MidSection() {
     }
 
     const { data, isLoading, isError, error } = useQuery({
-        queryKey: ['selectedFolder', folderId, folderName],
+        queryKey: ['selectedFolder', folderId, folderName,page],
         queryFn: selectedFolderQuery,
     })
 
@@ -90,7 +91,6 @@ export function MidSection() {
     });
 
     const handleFile = (folderId: string, fon: string, fileId: string) => {
-
         if (isMore)
             navigate(`/${folderName}/${folderName}Id/${fileId}`);
         else
@@ -98,11 +98,15 @@ export function MidSection() {
     }
 
     useEffect(() => {
-        if (page === 1 && data) {
-            setResult([...data.notes]);
-        }
-        else if (data && page !== 1) {
-            setResult([...result, ...data.notes]);
+        if(data){
+            const prevPage = prevPageRef.current;
+            if (page === 1 && data) {
+                setResult([...data.notes]);
+            }
+            else if (data && page !== 1 && page !== prevPage) {
+                setResult([...result, ...data.notes]);
+            }
+            prevPageRef.current = page;
         }
     }, [data])
 
@@ -112,10 +116,6 @@ export function MidSection() {
             setTrashNotes(true);
         }
     }, [folderId])
-
-    useEffect(() => {
-        queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
-    }, [page])
 
     if (isError) return <p className="text-white">{(error as Error).message}</p>
 
