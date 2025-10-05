@@ -2,7 +2,7 @@ import { formatDate } from "@/lib/date.helper";
 import { NoteSkeleton } from "@/skeletons/note.skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button"
 import {
@@ -18,7 +18,6 @@ import { config } from "@/config";
 import { useNavigate, useParams } from "react-router-dom";
 import { CalendarDays, FileText, Folder as FolderIcon } from "lucide-react";
 import { Input } from "./ui/input";
-import { PageContext } from "@/context";
 
 type option = { logo: string, text: string, id: number, alt: string }
 
@@ -30,7 +29,6 @@ export function OpenedSecton() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const folders = queryClient.getQueryData(["folders"]) as Folder[];
-    const { setPage } = useContext(PageContext);
 
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['note', fileId],
@@ -49,7 +47,6 @@ export function OpenedSecton() {
             return res.data;
         },
         onSuccess: async (data: string) => {
-            setPage(1);
             await queryClient.invalidateQueries({ queryKey: ["note", fileId] });
             await queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
             await queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
@@ -66,7 +63,6 @@ export function OpenedSecton() {
             return res.data;
         },
         onSuccess: async (data: string) => {
-            setPage(1);
             await queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
             queryClient.invalidateQueries({ queryKey: ["note", fileId] });
             toast.success(data);
@@ -83,7 +79,6 @@ export function OpenedSecton() {
         },
         onSuccess: async (data: string, { foldName, foldId }) => {
             toast.success(data);
-            setPage(1);
             await queryClient.invalidateQueries({ queryKey: ["recentNotes"] });
             await queryClient.invalidateQueries({ queryKey: ["folders"] });
             await queryClient.invalidateQueries({ queryKey: ["note"] });
