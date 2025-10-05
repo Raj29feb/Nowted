@@ -7,20 +7,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../ui/button";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FileText, FolderIcon } from "lucide-react";
 import { toast } from "react-toastify";
-import { PageContext } from "@/context";
 
 export function MidSection() {
     const { folderId, folderName, fileId } = useParams();
     const [trashNotes, setTrashNotes] = useState(true);
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const { page, setPage } = useContext(PageContext);
     const isMore = (folderName === MoreEnum.Favorites || folderName === MoreEnum.Archived || folderName === MoreEnum.Trash);
     const [result, setResult] = useState<Note[]>([])
     const prevPageRef = useRef(1);
+    const [page,setPage] = useState(1);
 
     async function selectedFolderQuery() {
         let params = {};

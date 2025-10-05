@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { config } from "@/config";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Plus, Search, X } from "lucide-react";
 import {
     Command,
@@ -21,7 +21,6 @@ import { useDebounce } from "@/custom-hook/debounce";
 import { Skeleton } from "../ui/skeleton";
 import { useNavigate, useParams } from "react-router-dom";
 import React from "react";
-import { PageContext } from "@/context";
 
 
 export function Sidebar() {
@@ -31,7 +30,6 @@ export function Sidebar() {
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebounce(search, 1000);
     const [searchNote, setSearchNote] = useState(false);
-    const { setPage } = useContext(PageContext);
 
     const mutation = useMutation({
         mutationFn: async () => {
@@ -46,7 +44,6 @@ export function Sidebar() {
             return res.data;
         },
         onSuccess: async (data: { id: string }) => {
-            setPage(1);
             navigate(`/${folderName}/${folderId}/${data.id}`);
             queryClient.invalidateQueries({ queryKey: ["selectedFolder"] });
             queryClient.invalidateQueries({ queryKey: ["recentNotes"] });

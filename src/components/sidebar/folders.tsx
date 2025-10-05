@@ -2,14 +2,13 @@ import type { Folder } from "@/interfaces/sidebar.interface";
 import { FoldersSkeleton } from "@/skeletons/folder.skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axios from "axios"
-import { useContext, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { toast } from "react-toastify";
 import { Folder as FolderIcon, FolderOpen, FolderPlus, Trash, X } from 'lucide-react';
 import { MoreEnum } from "@/lib/more.enums";
 import { config } from "@/config";
 import { useNavigate, useParams } from "react-router-dom";
 import { Input } from "../ui/input";
-import { PageContext } from "@/context";
 
 function checkFolderPresence(folderId: string, folders: Folder[]) {
     return folders.find(folder => folder.id === folderId);
@@ -22,7 +21,6 @@ export function Folders() {
     const [newFolderName, setNewFolderName] = useState('My New Folder');
     const queryClient = useQueryClient();
     const [createFolder, setCreateFolder] = useState(false);
-    const { setPage } = useContext(PageContext);
 
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['folders'],
@@ -69,7 +67,6 @@ export function Folders() {
 
     if (isError) return <p className="text-white">Error: {(error as Error).message}</p>;
     const handleFolder = (id: string, name: string) => {
-        setPage(1);
         navigate(`/${name}/${id}`);
     }
 
